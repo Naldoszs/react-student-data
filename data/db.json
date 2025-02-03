@@ -1,16 +1,3 @@
 {
-  "students": [
-    {
-      "id": "45",
-      "name": "Naldos",
-      "place": "Nigeria",
-      "phone": "08134365139"
-    },
-    {
-      "id": "34",
-      "name": "Toluene",
-      "place": "57",
-      "phone": "0813438488448"
-    }
-  ]
+  "students": []
 }

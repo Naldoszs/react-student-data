@@ -7,21 +7,28 @@ import apiRequest from "../components/apiRequest";
 
 const StudentTable = () => {
   const [students, setStudents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   //import the backend data
   useEffect(() => {
     //get the data
     const fetchStudentData = async () => {
-      const res = await fetch("http://localhost:4000/students");
-      const data = await res.json();
-
-      setStudents(data);
+      try {
+        const res = await fetch("http://localhost:4000/students");
+        const data = await res.json();
+        setStudents(data);
+      } catch (err) {
+        console.error("Error fetching student data:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
     //call the function
-
-    (async () => {
-      await fetchStudentData();
-    })();
+    setTimeout(() => {
+      (async () => {
+        await fetchStudentData();
+      })();
+    }, 500);
   }, []);
 
   //display details ftn
@@ -45,7 +52,8 @@ const StudentTable = () => {
       //call the api ftn
       const result = await apiRequest(API_URL, deleteOptions, msg);
       //reload the page manually after
-      window.location.reload();
+      // window.location.reload();
+      setStudents((prev) => prev.filter((student) => student.id !== id));
     }
   };
   return (
@@ -85,7 +93,7 @@ const StudentTable = () => {
           <table className="w-full h-auto flex flex-col">
             <thead className="flex w-full h-auto mb-4 bg-blue-500 p-2 rounded-sm text-white">
               <tr className="flex justify-between w-full h-auto text-xl">
-                <th className="center-item">ID</th>
+                <th className="center-item">S.No.</th>
                 <th className="center-item">Name</th>
                 <th className="center-item">Place</th>
                 <th className="center-item">Phone</th>
@@ -94,54 +102,78 @@ const StudentTable = () => {
             </thead>
             <tbody className="flex flex-col w-full h-auto space-y-8">
               {/* the rendering expression */}
-              {students.map((student) => (
+              {isLoading ? (
                 <tr
-                  className="flex justify-between w-full h-auto"
-                  key={student.id}
+                  style={{
+                    columnSpan: 5,
+                  }}
+                  className="flex w-full justify-center items-center"
                 >
-                  <td className="center-item info-text2">{student.id}</td>
-                  <td className="center-item  info-text2">{student.name}</td>
-                  <td className="center-item info-text2">{student.place}</td>
-                  <td className="center-item info-text2">{student.phone}</td>
-                  <td className="center-item info-text2">
-                    {/* the actn buttons */}
-                    <div
-                      className="flex justify-center flex-wrap items-end space-x-2 space-y-2 w-full h-auto"
-                      aria-label="buttons wrapper"
-                    >
-                      <Button
-                        text="View"
-                        bgColor="bg-green-500"
-                        color="text-white"
-                        hoverColor="hover:bg-green-900"
-                        paddingX="px-[8px]"
-                        paddingY="py-[4px]"
-                        onClick={() => displayDetails(student.id)}
-                      />
-
-                      <Button
-                        text="Edit"
-                        bgColor="bg-purple-500"
-                        color="text-white"
-                        hoverColor="hover:bg-purple-900"
-                        paddingX="px-[8px]"
-                        paddingY="py-[4px]"
-                        onClick={() => editDetails(student.id)}
-                      />
-
-                      <Button
-                        text="Delete"
-                        bgColor="bg-red-500"
-                        color="text-white"
-                        hoverColor="hover:bg-red-900"
-                        paddingX="px-[8px]"
-                        paddingY="py-[4px]"
-                        onClick={() => deleteData(student.id)}
-                      />
-                    </div>
+                  <td className="text-center p-4 text-2xl font-semibold text-semibold text-slate-600">
+                    Data is loading...
                   </td>
                 </tr>
-              ))}
+              ) : students.length === 0 ? (
+                <tr
+                  style={{
+                    columnSpan: 5,
+                  }}
+                  className="flex w-full justify-center items-center"
+                >
+                  <td className="text-center p-4 text-2xl font-semibold text-semibold text-slate-600">
+                    No data to display... <br /> Please, add data.
+                  </td>
+                </tr>
+              ) : (
+                students.map((student, index) => (
+                  <tr
+                    className="flex justify-between w-full h-auto"
+                    key={student.id}
+                  >
+                    <td className="center-item info-text2">{index + 1}</td>
+                    <td className="center-item  info-text2">{student.name}</td>
+                    <td className="center-item info-text2">{student.place}</td>
+                    <td className="center-item info-text2">{student.phone}</td>
+                    <td className="center-item info-text2">
+                      {/* the actn buttons */}
+                      <div
+                        className="flex justify-center flex-wrap items-end space-x-2 space-y-2 w-full h-auto"
+                        aria-label="buttons wrapper"
+                      >
+                        <Button
+                          text="View"
+                          bgColor="bg-green-500"
+                          color="text-white"
+                          hoverColor="hover:bg-green-900"
+                          paddingX="px-[8px]"
+                          paddingY="py-[4px]"
+                          onClick={() => displayDetails(student.id)}
+                        />
+
+                        <Button
+                          text="Edit"
+                          bgColor="bg-purple-500"
+                          color="text-white"
+                          hoverColor="hover:bg-purple-900"
+                          paddingX="px-[8px]"
+                          paddingY="py-[4px]"
+                          onClick={() => editDetails(student.id)}
+                        />
+
+                        <Button
+                          text="Delete"
+                          bgColor="bg-red-500"
+                          color="text-white"
+                          hoverColor="hover:bg-red-900"
+                          paddingX="px-[8px]"
+                          paddingY="py-[4px]"
+                          onClick={() => deleteData(student.id)}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
